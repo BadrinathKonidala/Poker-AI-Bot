@@ -1,0 +1,117 @@
+'''
+Hand Ranks:
+1 - Royal Flush
+2 - Straight Flush
+3 - 4 of a Kind
+4 - Full House
+5 - Flush
+6 - Straight
+7 - 3 of a Kind
+8 - Two Pair
+9 - Pair
+10 - High Card
+
+Suits:
+1 - Hearts
+2 - Diamonds
+3 - Spades
+4 - Clubs
+
+Ranks:
+1 - A
+2 - 2
+3 - 3
+4 - 4
+5 - 5
+6 - 6
+7 - 7
+8 - 8
+9 - 9
+10 - 10
+11 - J
+12 - Q
+13 - K
+
+
+'''
+
+
+"""Represents a single Card"""
+class Card:
+    def __init__(self, suit : int, rank : int):
+        self.suit = suit
+        self.rank = rank
+
+    def __repr__(self):
+        suits = ["Hearts", "Diamonds", "Spades", "Clubs"]
+        ranks = ['Ace','2','3','4','5','6','7','8','9','10','Jack','Queen','King']
+        return f"{ranks[self.rank-1]} of {suits[self.suit-1]}"
+    
+    def __eq__(self, other):
+        if not isinstance(other, Card):
+            return False
+        return self.suit == other.suit and self.rank == other.rank
+
+
+"""Represents a Hand of 5 Cards"""
+class Hand:
+    def __init__(self, cards: list[Card]):
+        if len(cards) != 5:
+            raise ValueError("A poker hand must contain exactly 5 cards.")
+        self.cards = cards
+        self.ranks = [card.rank for card in cards]
+        self.suits = [card.suit for card in cards]
+    
+    def __repr__(self):
+        return str(list(map(repr,self.cards)))
+
+
+def hand_rank(hand : Hand):
+    # all cards are the same suit (flush)
+    if len(set(hand.suits)) == 1:
+        ranks = sorted(hand.ranks)
+        # royal flush
+        if ranks == [1,10,11,12,13]:
+            return 1
+        
+        # straight flush
+        min_rank = min(ranks)
+        if [rank - min_rank for rank in ranks] == [0,1,2,3,4]:
+            return 2
+        
+        # regular flush
+        return 5
+    
+    # only 2 different ranks in hand
+    if len(set(hand.ranks)) == 2:
+        # 4 of a kind
+        if hand.ranks.count(hand.ranks[0]) in [1,4]:
+            return 3
+
+        # full house
+        return 4
+    
+    # only 3 different ranks in hand
+    if len(set(hand.ranks)) == 3:
+        # 2 pair
+        for rank in hand.ranks:
+            if hand.ranks.count(rank) == 2:
+                return 8
+        
+        # 3 of a kind
+        return 7
+
+    # pair
+    if len(set(hand.ranks)) == 4:
+        return 9
+    
+    
+    # straight
+    # Note that we are doing straight last since it is the most time consuming to check for
+    ranks = sorted(hand.ranks)
+    min_rank = min(ranks)
+    if [rank - min_rank for rank in ranks] == [0,1,2,3,4] or ranks == [1,10,11,12,13]:
+        return 6
+
+    # high card
+    return 10
