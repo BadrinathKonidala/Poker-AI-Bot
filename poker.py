@@ -37,6 +37,10 @@ Ranks:
 
 
 """Represents a single Card"""
+
+from consts import royal_ranks
+
+
 class Card:
     def __init__(self, suit : int, rank : int):
         self.suit = suit
@@ -53,19 +57,44 @@ class Card:
         return self.suit == other.suit and self.rank == other.rank
 
 
-"""Represents a Hand of 5 Cards"""
+"""Represents a Hand of Cards"""
 class Hand:
     def __init__(self, cards: list[Card]):
-        if len(cards) != 5:
-            raise ValueError("A poker hand must contain exactly 5 cards.")
+        # if len(cards) != 5:
+        #     raise ValueError("A poker hand must contain exactly 5 cards.")
         self.cards = cards
         self.ranks = [card.rank for card in cards]
         self.suits = [card.suit for card in cards]
     
     def __repr__(self):
         return str(list(map(repr,self.cards)))
+    
+    def __len__(self):
+        return len(self.cards)
+    
+    def add_card(self, card: Card):
+        if len(self.cards) == 5:
+            raise ValueError("A poker hand cannot contain more than 5 cards.")
+        self.cards.append(card)
+        self.ranks.append(card.rank)
+        self.suits.append(card.suit)
 
 
+"""Represents hole cards - the 2 private cards a player holds in a round"""
+class HoleCards:
+    def __init__(self, cards: list[Card]):
+        if len(cards) != 2:
+            raise ValueError("There must be exactly 2 hole cards")
+        self.cards = cards
+        self.ranks = [card.rank for card in cards]
+        self.suits = [card.suit for card in cards]
+    
+    def __repr__(self):
+        return str(list(map(repr,self.cards)))
+        
+
+
+'''Returns what type of hand it is'''
 def hand_rank(hand : Hand):
     # all cards are the same suit (flush)
     if len(set(hand.suits)) == 1:
@@ -110,7 +139,7 @@ def hand_rank(hand : Hand):
     # Note that we are doing straight last since it is the most time consuming to check for
     ranks = sorted(hand.ranks)
     min_rank = min(ranks)
-    if [rank - min_rank for rank in ranks] == [0,1,2,3,4] or ranks == [1,10,11,12,13]:
+    if [rank - min_rank for rank in ranks] == [0,1,2,3,4] or ranks == royal_ranks:
         return 6
 
     # high card
