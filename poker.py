@@ -39,6 +39,7 @@ Ranks:
 """Represents a single Card"""
 
 from consts import royal_ranks
+from math import comb
 
 
 class Card:
@@ -144,3 +145,26 @@ def hand_rank(hand : Hand):
 
     # high card
     return 10
+
+
+def royal_probability(board : Hand, hole : HoleCards):
+    # count number of royal cards (10, jack, queen, king, ace) we have for each suit across the hole cards and the board
+    royal_suits = {1 : 0, 2 : 0, 3 : 0, 4 : 0}
+    board_len = len(board)
+    for i in range(board_len):
+        if board.ranks[i] in royal_ranks:
+            royal_suits[board.suits[i]] += 1
+    for i in range(2):
+        if hole.ranks[i] in royal_ranks:
+            royal_suits[hole.suits[i]] += 1
+    
+    # sum the the individual probabilities of getting a royal for each suit
+    probability = 0
+    for royals in royal_suits.values():
+        # if suits <= board_len, royal is not possible, so probability is 0
+        if royals >= board_len:
+            # 52 - (board_len+2) cards left to choose rest of board from
+            # (52 - (board_len+2)) choose (5 - board_len) total ways to choose rest of the board 
+            # 52 - (board_len+2 + 5-suits) choose (5 - board_len - (5-suits)) ways to choose rest of board such that the remaning royal in this suit are on the board
+            probability += comb(52 - (board_len+2 + 5-royals) , (5 - board_len - (5 - royals)))/comb(52 -  (board_len+2), 5 - board_len)
+    return probability
