@@ -168,3 +168,23 @@ def royal_probability(board : Hand, hole : HoleCards):
             # 52 - (board_len+2 + 5-suits) choose (5 - board_len - (5-suits)) ways to choose rest of board such that the remaning royal in this suit are on the board
             probability += comb(52 - (board_len+2 + 5-royals) , (5 - board_len - (5 - royals)))/comb(52 -  (board_len+2), 5 - board_len)
     return probability
+
+
+def quads_prob(board : Hand, hole : HoleCards):
+    # count number of cards we have for each rank across the hole cards and the board
+    ranks = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, 11:0, 12:0, 13:0}
+    board_len = len(board)
+    for i in range(board_len):
+        ranks[board.ranks[i]]+=1
+    for i in range(2):
+        ranks[hole.ranks[i]]+=1
+    # sum the the individual probabilities of getting quads for each rank
+    probability = 0
+    for count in ranks.values():
+        # if 4-count > 5-board_len, quads is not possible, so probability is 0
+        if 4-count <= 5-board_len:
+            # 52 - (board_len+2) cards left to choose rest of board from
+            # (52 - (board_len+2)) choose (5 - board_len) total ways to choose rest of the board 
+            # 52 - (board_len+2 + 4-count) choose (5 - board_len - (4-count)) ways to choose rest of board such that the remaning cards of this rank are on the board
+            probability += comb(52 - (board_len+2 + 4-count), (5 - board_len - (4-count)))/comb(52 -  (board_len+2), 5 - board_len)
+    return probability
